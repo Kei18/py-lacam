@@ -5,11 +5,9 @@ from pycam import (
     LaCAM,
     get_grid,
     get_scenario,
-    get_sum_of_loss,
-    is_valid_mapf_solution,
     save_configs_for_visualizer,
+    validate_mapf_solution,
 )
-from pycam.mapf_utils import Deadline
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -51,24 +49,22 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print(args.flg_star)
-
     # define problem instance
     grid = get_grid(args.map_file)
     starts, goals = get_scenario(args.scen_file, args.num_agents)
 
     # solve MAPF
     planner = LaCAM()
-    deadline = Deadline(args.time_limit_ms)
     solution = planner.solve(
         grid=grid,
         starts=starts,
         goals=goals,
-        deadline=deadline,
         seed=args.seed,
+        time_limit_ms=args.time_limit_ms,
         flg_star=args.flg_star,
         verbose=args.verbose,
     )
+    validate_mapf_solution(grid, starts, goals, solution)
 
     # save result
     save_configs_for_visualizer(solution, args.output_file)

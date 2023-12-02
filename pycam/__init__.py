@@ -9,6 +9,7 @@ from .mapf_utils import (
     get_sum_of_loss,
     is_valid_mapf_solution,
     save_configs_for_visualizer,
+    validate_mapf_solution,
 )
 
 # set logger
@@ -24,6 +25,7 @@ __all__ = [
     "get_scenario",
     "is_valid_mapf_solution",
     "save_configs_for_visualizer",
+    "validate_mapf_solution",
     "get_sum_of_loss",
     "LaCAM",
 ]
