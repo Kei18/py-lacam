@@ -1,7 +1,7 @@
 # py-lacam
 
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](./LICENCE.txt)
-[![CI](https://github.com/Kei18/pycam/actions/workflows/ci.yml/badge.svg)](https://github.com/Kei18/pycam/actions/workflows/ci.yml)
+[![CI](https://github.com/Kei18/py-lacam/actions/workflows/ci.yml/badge.svg)](https://github.com/Kei18/py-lacam/actions/workflows/ci.yml)
 
 A minimal Python implementation of LaCAM* (lazy constraints addition search) for Multi-Agent Path Finding (MAPF).
 
