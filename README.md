@@ -11,12 +11,17 @@ LaCAM* is a graph pathfinding algorithm to solve MAPF. With the effective use of
 
 - Okumura, K. LaCAM: Search-Based Algorithm for Quick Multi-Agent Pathfinding. AAAI. 2023. [[project-page]](https://kei18.github.io/lacam)
 - Okumura, K. Improving LaCAM for Scalable Eventually Optimal Multi-Agent Pathfinding. IJCAI. 2023. [[project-page]](https://kei18.github.io/lacam2)
+- Okumura, K. Engineering LaCAM*: Towards Real-Time, Large-Scale, and Near-Optimal Multi-Agent Pathfinding. AAMAS. 2024. [[project-page]](https://kei18.github.io/lacam3)
 
 The original references use PIBT as a submodule, which makes the implementation a bit complicated.
 Here, I provide a much simpler implementation by replacing PIBT with __random action selection__.
 While __this is not at all effective from a performance perspective__, it can highlight the simple (and beautiful imo) structure of the algorithm and also can help understand the underlying concept.
 
 Feel free to use/extend this repo!
+
+## News
+
+- 13 Jan. 2024: A  simple implementation of LaCAM with PIBT is now available. It is scalable. Check this [branch](https://github.com/Kei18/py-lacam/tree/pibt).
 
 ## Setup
 
