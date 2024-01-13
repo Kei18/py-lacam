@@ -7,19 +7,8 @@ import numpy as np
 from loguru import logger
 
 from .dist_table import DistTable
-from .mapf_utils import (
-    Config,
-    Configs,
-    Coord,
-    Deadline,
-    Grid,
-    get_neighbors,
-    is_valid_coord,
-)
-
-NO_AGENT: int = np.iinfo(np.int32).max
-NO_LOCATION: Coord = (np.iinfo(np.int32).max, np.iinfo(np.int32).max)
-ACTIONS = [(-1, 0), (0, 1), (1, 0), (0, -1), (0, 0)]  # d_y, d_x
+from .mapf_utils import Config, Configs, Coord, Deadline, Grid, get_neighbors
+from .pibt import PIBT
 
 
 @dataclass
@@ -87,14 +76,12 @@ class LaCAM:
 
     def _solve(self) -> Configs:
         self.info(1, "start solving MAPF")
-        # set cache, used for collision check
-        self.occupied_from: np.ndarray = np.full(self.grid.shape, NO_AGENT, dtype=int)
-        self.occupied_to: np.ndarray = np.full(self.grid.shape, NO_AGENT, dtype=int)
 
         # set distance tables
-        self.dist_tables: list[DistTable] = [
-            DistTable(self.grid, goal) for goal in self.goals
-        ]
+        self.dist_tables = [DistTable(self.grid, g) for g in self.goals]
+
+        # set PIBT
+        self.pibt = PIBT(self.dist_tables)
 
         # set search scheme
         OPEN: deque[HighLevelNode] = deque([])
@@ -153,7 +140,7 @@ class LaCAM:
                 OPEN.appendleft(N_known)  # typically helpful
                 # rewrite, Dijkstra update
                 D = deque([N])
-                while len(D) > 0:
+                while len(D) > 0 and self.flg_star:
                     N_from = D.popleft()
                     for N_to in N_from.neighbors:
                         g = N_from.g + self.get_edge_cost(N_from.Q, N_to.Q)
@@ -220,6 +207,7 @@ class LaCAM:
 
     def get_order(self, Q: Config) -> list[int]:
         # e.g., by descending order of dist(Q[i], g_i)
+        # Note that this is not an effective PIBT prioritization scheme
         order = list(range(self.num_agents))
         self.rng.shuffle(order)
         order.sort(key=lambda i: self.dist_tables[i].get(Q[i]), reverse=True)
@@ -228,49 +216,14 @@ class LaCAM:
     def configuration_generaotr(
         self, N: HighLevelNode, C: LowLevelNode
     ) -> Config | None:
-        Q_to = Config([NO_LOCATION for _ in range(self.num_agents)])
-
-        # set constraints to Q_to
+        # setup next configuration
+        Q_to = Config([self.pibt.NIL_COORD for _ in range(self.num_agents)])
         for k in range(C.depth):
             Q_to[C.who[k]] = C.where[k]
 
-        # generate configuration
-        flg_success = True
-        for i in range(self.num_agents):
-            v_i_from = N.Q[i]
-            self.occupied_from[v_i_from] = i
-
-            # set next position by random choice when without constraint
-            if Q_to[i] == NO_LOCATION:
-                a = self.rng.choice(ACTIONS)
-                v = (v_i_from[0] + a[0], v_i_from[1] + a[1])
-                if is_valid_coord(self.grid, v):
-                    Q_to[i] = v
-                else:
-                    flg_success = False
-                    break
-
-            v_i_to: Coord = Q_to[i]
-            # check vertex collision
-            if self.occupied_to[v_i_to] != NO_AGENT:
-                flg_success = False
-                break
-            # check edge collision
-            j = self.occupied_from[v_i_to]
-            if j != NO_AGENT and j != i and Q_to[j] == v_i_from:
-                flg_success = False
-                break
-            self.occupied_to[v_i_to] = i
-
-        # cleanup cache used for collision checking
-        for i in range(self.num_agents):
-            v_i_from = N.Q[i]
-            self.occupied_from[v_i_from] = NO_AGENT
-            v_i_next = Q_to[i]
-            if v_i_next != NO_LOCATION:
-                self.occupied_to[v_i_next] = NO_AGENT
-
-        return Q_to if flg_success else None
+        # apply PIBT
+        success = self.pibt.step(N.Q, Q_to, N.order)
+        return Q_to if success else None
 
     def info(self, level: int, msg: str) -> None:
         if self.verbose < level:

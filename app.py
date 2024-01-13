@@ -44,7 +44,10 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--seed", type=int, default=0)
     parser.add_argument("-t", "--time_limit_ms", type=int, default=1000)
     parser.add_argument(
-        "--flg_star", action=argparse.BooleanOptionalAction, default=True
+        "--flg_star",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="choose LaCAM* (default) or vanilla LaCAM",
     )
 
     args = parser.parse_args()

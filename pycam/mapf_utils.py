@@ -150,6 +150,8 @@ def validate_mapf_solution(
     goals: Config,
     solution: Configs,
 ) -> None:
+    assert len(solution) > 0, "invalid solution, empty"
+
     # starts
     assert all(
         [u == v for (u, v) in zip(starts, solution[0])]
