@@ -142,7 +142,7 @@ class LaCAM:
                     N.tree.append(C.get_child(i, u))
 
             # generate the next configuration
-            Q_to = self.configuration_generaotr(N, C)
+            Q_to = self.configuration_generator(N, C)
             if Q_to is None:
                 # invalid configuration
                 continue
@@ -225,7 +225,7 @@ class LaCAM:
         order.sort(key=lambda i: self.dist_tables[i].get(Q[i]), reverse=True)
         return order
 
-    def configuration_generaotr(
+    def configuration_generator(
         self, N: HighLevelNode, C: LowLevelNode
     ) -> Config | None:
         Q_to = Config([NO_LOCATION for _ in range(self.num_agents)])
