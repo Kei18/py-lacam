@@ -160,7 +160,7 @@ class LaCAM:
                     parent=N,
                     order=self.get_order(Q_to),
                     g=N.g + self.get_edge_cost(N.Q, Q_to),
-                    h=self.get_h_value(Q_init),
+                    h=self.get_h_value(Q_to),
                 )
                 N.neighbors.add(N_new)
                 OPEN.appendleft(N_new)
@@ -203,7 +203,7 @@ class LaCAM:
             if c is None:
                 return np.iinfo(np.int32).max
             cost += c
-        return 0
+        return cost
 
     def get_order(self, Q: Config) -> list[int]:
         # e.g., by descending order of dist(Q[i], g_i)
